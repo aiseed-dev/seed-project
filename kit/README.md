@@ -6,11 +6,17 @@ MIT(店に渡して自由に使ってよい)。本体アプリ群とは完全に
 
 ## 必要なもの
 
-Python 3.11+ と openpyxl(`pip install openpyxl`)
+Python 3.11+ と openpyxl(`pip install openpyxl`)。
+PDF 取込(pamphlet.py)を使う場合は pdfplumber も
+(`pip install pdfplumber`)。
 
 ## 使い方
 
 ```bash
+# 0. (任意)既存のカタログ PDF から台帳を起こす
+#    PDF は kit/data/ に置く(第三者の著作物のためコミットしない)
+python pamphlet.py data/2026main.pdf -o 台帳.xlsx
+
 # 1. 商品台帳の雛形を作る(--sample でサンプル商品入り)
 python ledger.py 台帳.xlsx --sample
 
