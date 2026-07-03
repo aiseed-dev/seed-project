@@ -19,6 +19,7 @@ from app.routers import (
     me,
     reports,
     requests,
+    shop,
     varieties,
 )
 
@@ -35,6 +36,7 @@ app.include_router(reports.router, prefix="/api/v1")
 app.include_router(articles.router, prefix="/api/v1")
 app.include_router(editor.router, prefix="/api/v1")
 app.include_router(me.router, prefix="/api/v1")
+app.include_router(shop.router, prefix="/api/v1")
 
 
 @app.get("/health")
