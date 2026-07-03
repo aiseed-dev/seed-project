@@ -494,3 +494,135 @@ class Me {
 
   bool get isEditor => role != 'user';
 }
+
+class ShopInfo {
+  const ShopInfo({
+    required this.id,
+    required this.slug,
+    required this.code,
+    required this.name,
+    required this.isVerified,
+    required this.isActive,
+    this.description,
+    this.websiteUrl,
+    this.region,
+    this.contactPhone,
+    this.returnPolicy,
+    this.deliveryTime,
+  });
+
+  factory ShopInfo.fromJson(Map<String, dynamic> json) => ShopInfo(
+        id: json['id'] as String,
+        slug: json['slug'] as String,
+        code: json['code'] as String,
+        name: json['name'] as String,
+        description: json['description'] as String?,
+        websiteUrl: json['website_url'] as String?,
+        region: json['region'] as String?,
+        contactPhone: json['contact_phone'] as String?,
+        returnPolicy: json['return_policy'] as String?,
+        deliveryTime: json['delivery_time'] as String?,
+        isVerified: (json['is_verified'] as bool?) ?? false,
+        isActive: (json['is_active'] as bool?) ?? true,
+      );
+
+  final String id;
+  final String slug;
+  final String code;
+  final String name;
+  final String? description;
+  final String? websiteUrl;
+  final String? region;
+  final String? contactPhone;
+  final String? returnPolicy;
+  final String? deliveryTime;
+  final bool isVerified;
+  final bool isActive;
+}
+
+class ShopMemberInfo {
+  const ShopMemberInfo({
+    required this.userId,
+    required this.displayName,
+    required this.role,
+    this.contactLabel,
+  });
+
+  factory ShopMemberInfo.fromJson(Map<String, dynamic> json) => ShopMemberInfo(
+        userId: json['user_id'] as String,
+        displayName: json['display_name'] as String,
+        role: json['role'] as String,
+        contactLabel: json['contact_label'] as String?,
+      );
+
+  final String userId;
+  final String displayName;
+  final String role; // owner / staff
+  final String? contactLabel;
+}
+
+class ImportRowResult {
+  const ImportRowResult({
+    required this.row,
+    required this.status,
+    required this.name,
+    this.detail,
+  });
+
+  factory ImportRowResult.fromJson(Map<String, dynamic> json) =>
+      ImportRowResult(
+        row: json['row'] as int,
+        status: json['status'] as String,
+        name: json['name'] as String,
+        detail: json['detail'] as String?,
+      );
+
+  final int row;
+  final String status; // created / proposed / error
+  final String name;
+  final String? detail;
+}
+
+class ImportSummary {
+  const ImportSummary({
+    required this.created,
+    required this.proposed,
+    required this.errors,
+    required this.rows,
+  });
+
+  factory ImportSummary.fromJson(Map<String, dynamic> json) => ImportSummary(
+        created: json['created'] as int,
+        proposed: json['proposed'] as int,
+        errors: json['errors'] as int,
+        rows: (json['rows'] as List<dynamic>)
+            .map((r) => ImportRowResult.fromJson(r as Map<String, dynamic>))
+            .toList(),
+      );
+
+  final int created;
+  final int proposed;
+  final int errors;
+  final List<ImportRowResult> rows;
+}
+
+class ShopStatsRow {
+  const ShopStatsRow({
+    required this.listingId,
+    required this.title,
+    required this.status,
+    required this.requestCount,
+  });
+
+  factory ShopStatsRow.fromJson(Map<String, dynamic> json) => ShopStatsRow(
+        listingId: json['listing_id'] as String,
+        title: json['title'] as String,
+        status: json['status'] as String,
+        requestCount: json['request_count'] as int,
+      );
+
+  final String listingId;
+  final String title;
+  final String status;
+  final int requestCount;
+}

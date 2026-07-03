@@ -204,6 +204,89 @@ class ApiClient {
         if (detail != null && detail.isNotEmpty) 'detail': detail,
       });
 
+  // --- 店舗スタッフ(docs/03) ---
+
+  Future<ShopInfo> fetchShop() async {
+    final json = await getJson('/shop') as Map<String, dynamic>;
+    return ShopInfo.fromJson(json);
+  }
+
+  Future<ShopInfo> patchShop(Map<String, dynamic> body) async {
+    final json = await patchJson('/shop', body) as Map<String, dynamic>;
+    return ShopInfo.fromJson(json);
+  }
+
+  Future<List<ShopMemberInfo>> fetchShopMembers() async {
+    final rows = await getJson('/shop/members') as List<dynamic>;
+    return rows
+        .map((r) => ShopMemberInfo.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<ShopMemberInfo> patchContactLabel(String label) async {
+    final json = await patchJson('/shop/me', {'contact_label': label})
+        as Map<String, dynamic>;
+    return ShopMemberInfo.fromJson(json);
+  }
+
+  Future<List<Listing>> fetchShopListings() async {
+    final rows = await getJson('/shop/listings') as List<dynamic>;
+    return rows
+        .map((r) => Listing.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<int> bulkListings(
+    List<String> ids,
+    String action, {
+    int? priceYen,
+  }) async {
+    final json = await postJson('/shop/listings/bulk', {
+      'ids': ids,
+      'action': action,
+      if (priceYen != null) 'price_yen': priceYen,
+    }) as Map<String, dynamic>;
+    return json['updated'] as int;
+  }
+
+  Future<ImportSummary> importShopCsv(
+    List<int> bytes, {
+    String filename = 'listings.csv',
+  }) async {
+    final uri = Uri.parse('$baseUrl/shop/listings/import');
+    final request = http.MultipartRequest('POST', uri)
+      ..headers.addAll(_headers()..remove('Content-Type'))
+      ..files.add(
+        http.MultipartFile.fromBytes('file', bytes, filename: filename),
+      );
+    final streamed = await _client.send(request);
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode >= 400) {
+      throw ApiException(res.statusCode, res.body);
+    }
+    return ImportSummary.fromJson(
+      jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>,
+    );
+  }
+
+  Future<List<TradeRequestEntry>> fetchShopRequests() async {
+    final rows = await getJson('/shop/requests') as List<dynamic>;
+    return rows
+        .map((r) => TradeRequestEntry.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<ShopStatsRow>> fetchShopStats() async {
+    final rows = await getJson('/shop/stats') as List<dynamic>;
+    return rows
+        .map((r) => ShopStatsRow.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// エクスポートのダウンロードURL(Webのアンカー/ブラウザで開く)。
+  String exportUrl(String kind, String format) =>
+      '$baseUrl/shop/export?kind=$kind&format=$format';
+
   // --- 低レベル ---
 
   Map<String, String> _headers() {
