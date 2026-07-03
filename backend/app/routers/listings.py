@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.auth import require_user
 from app.core.db import get_db
 from app.core.errors import ApiError
-from app.models import Category, Listing, ListingPhoto, Shop, Variety
+from app.models import Category, Listing, ListingPhoto, Shop, ShopMember, Variety
 from app.schemas.listings import ListingCreate, ListingOut, PhotoOut
 from app.services import images
 from app.services.variety import resolve_free_name
@@ -134,6 +134,39 @@ def create_listing(
     if payload.requires_seed_label:
         _validate_seed_label(payload)
 
+    # 生産物×郵送は食品表示が必須(docs/11。加工品・許可要食品は対象外)
+    if payload.item_kind == "produce" and payload.delivery_method == "mail":
+        food = [
+            payload.food_name,
+            payload.food_origin,
+            payload.food_producer,
+            payload.food_harvest_date,
+            payload.food_storage,
+        ]
+        if not all(food):
+            raise ApiError(
+                422,
+                "FOOD_LABEL_REQUIRED",
+                "食品表示(名称・原産地・生産者・収穫日・保存方法)が必要です",
+            )
+
+    # 郵送で業として売る事業者は特商法表示(店舗プロフィールから束ねる)
+    if payload.requires_tokushoho:
+        member = db.scalars(
+            select(ShopMember).where(ShopMember.user_id == user_id)
+        ).first()
+        shop = db.get(Shop, member.shop_id) if member else None
+        complete = shop is not None and all(
+            [shop.region, shop.contact_phone, shop.return_policy, shop.delivery_time]
+        )
+        if not complete:
+            raise ApiError(
+                422,
+                "TOKUSHOHO_REQUIRED",
+                "特商法表示の項目(住所・連絡先・返品方針・引き渡し時期)を"
+                "店舗プロフィールに設定してください",
+            )
+
     if payload.listing_type == "sell" and payload.price_yen is None:
         raise ApiError(422, "PRICE_REQUIRED", "販売価格を入力してください")
 
@@ -161,6 +194,12 @@ def create_listing(
         label_production_area=payload.label_production_area,
         label_germination_rate=payload.label_germination_rate,
         label_seed_treatment=payload.label_seed_treatment,
+        food_name=payload.food_name,
+        food_origin=payload.food_origin,
+        food_producer=payload.food_producer,
+        food_harvest_date=payload.food_harvest_date,
+        food_storage=payload.food_storage,
+        requires_tokushoho=payload.requires_tokushoho,
         # 個人の家庭採種品は既定で無保証表示(業者品との区別)
         no_warranty=(
             payload.no_warranty

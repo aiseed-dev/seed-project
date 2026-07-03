@@ -14,7 +14,7 @@ class ListingCreate(BaseModel):
     category_id: int
     title: str = Field(min_length=1, max_length=100)
     description: str = ""
-    item_kind: Literal["seed", "seedling"] = "seed"  # produce は Phase 5b
+    item_kind: Literal["seed", "seedling", "produce"] = "seed"
     listing_type: Literal["exchange", "sell", "give"]
     price_yen: int | None = Field(default=None, gt=0)
     desired_trade: str | None = None
@@ -32,6 +32,14 @@ class ListingCreate(BaseModel):
     label_production_area: str | None = None
     label_germination_rate: str | None = None
     label_seed_treatment: str | None = None
+    # 生産物(生鮮野菜)の郵送時の食品表示(docs/11)
+    food_name: str | None = None
+    food_origin: str | None = None
+    food_producer: str | None = None
+    food_harvest_date: datetime.date | None = None
+    food_storage: str | None = None
+    # 特商法表示(郵送で業として売る事業者)
+    requires_tokushoho: bool = False
     # 個人品の性質表示。未指定なら業者品(requires_seed_label)以外は true
     no_warranty: bool | None = None
     # 種苗法対応: 「登録品種ではない」確認チェック
@@ -74,6 +82,12 @@ class ListingOut(BaseModel):
     label_production_area: str | None
     label_germination_rate: str | None
     label_seed_treatment: str | None
+    food_name: str | None
+    food_origin: str | None
+    food_producer: str | None
+    food_harvest_date: datetime.date | None
+    food_storage: str | None
+    requires_tokushoho: bool
     no_warranty: bool
     status: str
     created_at: datetime.datetime

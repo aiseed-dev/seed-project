@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     mail_from: str = "たねの森 <noreply@localhost>"
     request_expire_days: int = 7  # requested 放置の自動クローズ
+    public_app_url: str = "https://seed.aiseed.dev"  # QR に入れるURLの基点
 
 
 @lru_cache

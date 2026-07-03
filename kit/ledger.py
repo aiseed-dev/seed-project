@@ -209,9 +209,7 @@ def _row_to_item(headers: dict[str, int], values: tuple) -> Item:
     except (TypeError, ValueError):
         raise LedgerError(f"価格が数値ではありません: {price_raw!r}") from None
     extra = {
-        name: text(name)
-        for name in headers
-        if name not in ITEM_HEADERS and text(name)
+        name: text(name) for name in headers if name not in ITEM_HEADERS and text(name)
     }
     return Item(
         extra=extra,
