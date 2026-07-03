@@ -110,10 +110,11 @@ class _ShopRequestScreenState extends State<ShopRequestScreen> {
                             Row(
                               children: [
                                 Expanded(child: Text(item.title)),
-                                Text(
+                                DesignText(
                                   item.priceYen != null
                                       ? '¥${item.priceYen} × ${item.quantity}'
                                       : '× ${item.quantity}',
+                                  size: 13,
                                 ),
                               ],
                             ),
@@ -124,10 +125,10 @@ class _ShopRequestScreenState extends State<ShopRequestScreen> {
                                   child: Text('小計(送料別)',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold))),
-                              Text('¥$_subtotal',
-                                  style: const TextStyle(
-                                      color: SeedColors.orange,
-                                      fontWeight: FontWeight.bold)),
+                              DesignText('¥$_subtotal',
+                                  size: 15,
+                                  color: SeedColors.orange,
+                                  bold: true),
                             ],
                           ),
                           const SizedBox(height: 8),

@@ -78,13 +78,10 @@ class _ShopRequestsScreenState extends State<ShopRequestsScreen> {
                                 '${request.requestNo}(${entry.itemCount}品目)'),
                             subtitle:
                                 Text(request.createdAt.substring(0, 10)),
-                            trailing: Text(
+                            trailing: DesignText(
                               _statusLabels[request.status] ?? request.status,
-                              style: TextStyle(
-                                color: pending
-                                    ? Colors.red
-                                    : SeedColors.green,
-                              ),
+                              size: 13,
+                              color: pending ? Colors.red : SeedColors.green,
                             ),
                             onTap: () =>
                                 context.go('/requests/${request.id}'),

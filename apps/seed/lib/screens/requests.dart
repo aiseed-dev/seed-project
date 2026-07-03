@@ -90,9 +90,11 @@ class _RequestListScreenState extends State<RequestListScreen> {
                 ? Text(entry.lastMessage!,
                     maxLines: 1, overflow: TextOverflow.ellipsis)
                 : null,
-            trailing: Text(
+            // 状態バッジはデザインの文字
+            trailing: DesignText(
               _statusLabels[request.status] ?? request.status,
-              style: const TextStyle(color: SeedColors.green),
+              size: 13,
+              color: SeedColors.green,
             ),
             onTap: () => context.go('/requests/${request.id}'),
           );

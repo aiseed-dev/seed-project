@@ -134,10 +134,11 @@ class _RequestScreenState extends State<RequestScreen> {
         children: [
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
-            title: Text(
+            title: DesignText(
               '${labels[request.status]}・${request.items.length}品目',
-              style: const TextStyle(
-                  color: SeedColors.green, fontWeight: FontWeight.bold),
+              size: 14,
+              color: SeedColors.green,
+              bold: true,
             ),
             children: [
               for (final item in request.items)
@@ -145,10 +146,11 @@ class _RequestScreenState extends State<RequestScreen> {
                   dense: true,
                   leading: TypeBadge(listingType: item.listingType),
                   title: Text(item.title),
-                  trailing: Text(
+                  trailing: DesignText(
                     item.priceYen != null
                         ? '¥${item.priceYen} × ${item.quantity}'
                         : '× ${item.quantity}',
+                    size: 13,
                   ),
                 ),
             ],

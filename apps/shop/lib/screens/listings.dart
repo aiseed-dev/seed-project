@@ -218,8 +218,10 @@ class _ShopListingsScreenState extends State<ShopListingsScreen> {
               onLongPress: () => _toggle(listing.id),
               onTap: _selected.isNotEmpty ? () => _toggle(listing.id) : null,
               title: Text(listing.title),
-              subtitle: Text(
+              subtitle: DesignText(
                 '${listing.priceYen ?? "-"}円・${_statusLabels[listing.status]}',
+                size: 12,
+                color: SeedColors.disabled,
               ),
               trailing: _selected.contains(listing.id)
                   ? const Icon(Icons.check_circle, color: SeedColors.green)
@@ -246,9 +248,13 @@ class _ShopListingsScreenState extends State<ShopListingsScreen> {
               onSelectChanged: (_) => _toggle(listing.id),
               cells: [
                 DataCell(Text(listing.varietyNameFree ?? listing.title)),
-                DataCell(Text('${listing.priceYen ?? "-"}円')),
-                DataCell(Text(_statusLabels[listing.status] ?? listing.status)),
-                DataCell(Text(listing.createdAt.substring(0, 10))),
+                DataCell(DesignText('${listing.priceYen ?? "-"}円',
+                    size: 13, color: SeedColors.orange)),
+                DataCell(DesignText(
+                    _statusLabels[listing.status] ?? listing.status,
+                    size: 13)),
+                DataCell(DesignText(listing.createdAt.substring(0, 10),
+                    size: 13)),
               ],
             ),
         ],

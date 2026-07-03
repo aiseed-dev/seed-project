@@ -81,7 +81,9 @@ table.spec td { padding: 1px 0; }
   font-size: 13px;
   padding: 6px;
 }
-.desc { font-size: 13px; }
+/* 説明文は「読む文字」: ブラウザの文字サイズ設定に追従(rem)。
+   価格・チップ等のデザイン文字は px のまま(スキル design 2-2) */
+.desc { font-size: 0.8125rem; }
 footer {
   text-align: center;
   font-size: 12px;

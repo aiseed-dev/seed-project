@@ -121,7 +121,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ListTile(
                 title: Text(
                     '${entry.request.requestNo}(${entry.itemCount}品目)'),
-                trailing: Text(entry.request.status),
+                trailing: DesignText(entry.request.status,
+                    size: 13, color: SeedColors.green),
                 onTap: () => context.go('/requests/${entry.request.id}'),
               ),
             if (requests.isEmpty)
@@ -149,13 +150,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12)),
+              // 統計数値はデザインの文字(サイズ設定に影響されない)
+              DesignText(label, size: 12),
               const SizedBox(height: 4),
-              Text(value,
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: color)),
+              DesignText(value, size: 20, color: color, bold: true),
             ],
           ),
         ),

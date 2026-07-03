@@ -81,10 +81,11 @@ class _ImportScreenState extends State<ImportScreen> {
                 ),
               if (result != null) ...[
                 const SizedBox(height: 16),
-                Text(
+                DesignText(
                   '作成 ${result.created} / 提案つき ${result.proposed} / '
                   'エラー ${result.errors}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  size: 14,
+                  bold: true,
                 ),
                 const Text(
                   '「提案つき」(黄)は運営の承認後に辞典と紐づきます',

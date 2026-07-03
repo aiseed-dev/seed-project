@@ -162,11 +162,11 @@ class _CartScreenState extends State<CartScreen> {
                 alignment: Alignment.centerRight,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
+                  child: DesignText(
                     '小計 ¥${group.subtotalYen}(送料別)',
-                    style: const TextStyle(
-                        color: SeedColors.orange,
-                        fontWeight: FontWeight.bold),
+                    size: 14,
+                    color: SeedColors.orange,
+                    bold: true,
                   ),
                 ),
               ),
@@ -203,13 +203,11 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 if (!available)
-                  const Text('入手できなくなりました',
-                      style: TextStyle(
-                          fontSize: 11, color: SeedColors.disabled)),
+                  const DesignText('入手できなくなりました',
+                      size: 11, color: SeedColors.disabled),
                 if (line.priceYen != null)
-                  Text('¥${line.priceYen}',
-                      style: const TextStyle(
-                          fontSize: 12, color: SeedColors.orange)),
+                  DesignText('¥${line.priceYen}',
+                      size: 12, color: SeedColors.orange),
               ],
             ),
           ),

@@ -48,10 +48,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       return Container(
         padding: const EdgeInsets.all(12),
         color: SeedColors.disabled,
-        child: Text(
+        alignment: Alignment.center,
+        child: DesignText(
           listing.status == 'closed' ? '終了しました' : 'ただいま取引中です',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: SeedColors.surface),
+          size: 14,
+          color: SeedColors.surface,
         ),
       );
     }
@@ -169,10 +170,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               !listing.requiresSeedLabel)
                             const Padding(
                               padding: EdgeInsets.only(top: 12),
-                              child: Text(
+                              child: DesignText(
                                 '家庭採種品です。発芽・生育は保証されません。',
-                                style: TextStyle(
-                                    color: SeedColors.disabled, fontSize: 12),
+                                size: 12,
+                                color: SeedColors.disabled,
                               ),
                             ),
                           const Divider(),
@@ -191,26 +192,27 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     );
   }
 
+  /// 条件行(価格等)は「デザインの文字」: サイズ設定に影響されない。
   Widget _condition(Listing listing) {
     switch (listing.listingType) {
       case 'sell':
-        return Text(
+        return DesignText(
           '${listing.priceYen}円(送料別)',
-          style: const TextStyle(
-            color: SeedColors.orange,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          size: 20,
+          color: SeedColors.orange,
+          bold: true,
         );
       case 'exchange':
-        return Text(
+        return DesignText(
           '希望: ${listing.desiredTrade ?? "相談"}',
-          style: const TextStyle(color: SeedColors.green, fontSize: 16),
+          size: 16,
+          color: SeedColors.green,
         );
       default:
-        return const Text(
+        return const DesignText(
           '無償でお譲りします(送料別)',
-          style: TextStyle(color: SeedColors.blue, fontSize: 16),
+          size: 16,
+          color: SeedColors.blue,
         );
     }
   }
@@ -232,8 +234,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     );
   }
 
+  /// ラベル列は「デザインの文字」(整列が核)。値は読む文字として追従させる。
   Widget _specTable(Listing listing) {
-    const label = TextStyle(color: SeedColors.disabled, fontSize: 12);
     final rows = <(String, String)>[
       if (listing.quantityNote != null) ('内容量', listing.quantityNote!),
       if (listing.harvestYear != null) ('採種年', '${listing.harvestYear}年'),
@@ -258,7 +260,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 80, child: Text(k, style: label)),
+                SizedBox(
+                  width: 80,
+                  child:
+                      DesignText(k, size: 12, color: SeedColors.disabled),
+                ),
                 Expanded(child: Text(v)),
               ],
             ),
@@ -268,8 +274,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   }
 
   /// 指定種苗表示(種苗法22条)を1枠にまとめて表示。
+  /// 見出し・ラベルはデザインの文字、表示事項の値は読む文字。
   Widget _seedLabel(Listing listing) {
-    const label = TextStyle(color: SeedColors.disabled, fontSize: 12);
     return Container(
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
@@ -280,9 +286,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('指定種苗表示',
-              style: TextStyle(
-                  color: SeedColors.green, fontWeight: FontWeight.bold)),
+          const DesignText('指定種苗表示',
+              size: 14, color: SeedColors.green, bold: true),
           const SizedBox(height: 4),
           for (final (k, v) in <(String, String?)>[
             ('氏名/名称', listing.labelSellerName),
@@ -295,7 +300,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(width: 80, child: Text(k, style: label)),
+                  SizedBox(
+                    width: 80,
+                    child:
+                        DesignText(k, size: 12, color: SeedColors.disabled),
+                  ),
                   Expanded(child: Text(v)),
                 ],
               ),
