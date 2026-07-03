@@ -48,6 +48,7 @@ h2.category {
   flex-direction: column;
   gap: 6px;
 }
+.card .catch { color: var(--green); font-size: 12px; }
 .card .name { font-weight: bold; font-size: 15px; }
 .card .name a { color: var(--ink); text-decoration: none; }
 .card .name a:hover { text-decoration: underline; }
