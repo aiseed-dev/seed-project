@@ -3,19 +3,25 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'config.dart';
 import 'nav.dart';
 import 'screens/cart.dart';
+import 'screens/detail.dart';
 import 'screens/home.dart';
+import 'screens/listings.dart';
+import 'screens/login.dart';
 import 'screens/mypage.dart';
 import 'screens/post.dart';
+import 'screens/register.dart';
 import 'screens/search.dart';
 
 void main() {
+  ApiClient.init(apiBase);
+  Session.pocketbaseUrl = pbBase;
   runApp(const SeedApp());
 }
 
 /// 交換用アプリ。ルーティングは docs/04(go_router のみ)。
-/// Phase 0 では下部ナビの5画面(空)まで。
 class SeedApp extends StatelessWidget {
   const SeedApp({super.key});
 
@@ -31,12 +37,34 @@ class SeedApp extends StatelessWidget {
 
 final _router = GoRouter(
   routes: [
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => NavShell(shell: shell),
       branches: [
         StatefulShellBranch(
           routes: [
-            GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+            GoRoute(
+              path: '/',
+              builder: (context, state) => const HomeScreen(),
+              routes: [
+                GoRoute(
+                  path: 'c/:slug',
+                  builder: (context, state) => CategoryListingsScreen(
+                    slug: state.pathParameters['slug']!,
+                  ),
+                ),
+                GoRoute(
+                  path: 'l/:id',
+                  builder: (context, state) => ListingDetailScreen(
+                    listingId: state.pathParameters['id']!,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
         StatefulShellBranch(

@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import 'package:flutter/material.dart';
 
-/// ホーム(docs/04)。Phase 0 は空画面。
-/// Phase 2 で CategoryGrid / NewListingsStrip を実装する。
+import '../widgets/category_grid.dart';
+import '../widgets/new_listings_strip.dart';
+
+/// ホーム(docs/04): 分類グリッド+新着ストリップ。各部品が自分で取得する。
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -15,7 +17,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('種の交換')),
-      body: const Center(child: Text('ホーム(準備中)')),
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: const [
+          Text('分類からさがす',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 8),
+          CategoryGrid(),
+          SizedBox(height: 16),
+          Text('新着',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 8),
+          NewListingsStrip(),
+        ],
+      ),
     );
   }
 }
