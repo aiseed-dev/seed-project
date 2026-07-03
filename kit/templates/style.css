@@ -1,0 +1,89 @@
+/* 種苗カタログ様式(docs/10 の簡略適用) */
+:root {
+  --bg: #f5f1e6;
+  --card: #ffffff;
+  --ink: #33302a;
+  --green: #5a7a2e;
+  --orange: #c0761a;
+  --muted: #a9a297;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  line-height: 1.6;
+}
+header {
+  background: var(--card);
+  border-bottom: 2px solid var(--green);
+  padding: 16px 24px;
+}
+header h1 { margin: 0; font-size: 20px; }
+header .contact { font-size: 12px; color: var(--muted); }
+header a.order { color: var(--orange); font-size: 13px; }
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+nav.crumb { font-size: 12px; margin: 8px 0; }
+nav.crumb a { color: var(--green); }
+h2.category {
+  color: var(--green);
+  font-size: 16px;
+  border-bottom: 1px solid var(--green);
+  padding-bottom: 4px;
+  margin: 24px 0 12px;
+}
+.count { font-size: 12px; color: var(--muted); margin-left: 8px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid #e3ddcd;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.card .name { font-weight: bold; font-size: 15px; }
+.card .name a { color: var(--ink); text-decoration: none; }
+.card .name a:hover { text-decoration: underline; }
+.chip {
+  display: inline-block;
+  border: 1px solid var(--green);
+  color: var(--green);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 0 6px;
+  margin-right: 4px;
+}
+table.spec { border-collapse: collapse; font-size: 12px; width: 100%; }
+table.spec th {
+  text-align: left;
+  font-weight: normal;
+  color: var(--muted);
+  padding: 1px 8px 1px 0;
+  white-space: nowrap;
+  width: 5em;
+}
+table.spec td { padding: 1px 0; }
+.price { color: var(--orange); font-weight: bold; font-size: 16px; }
+.price small { color: var(--muted); font-weight: normal; font-size: 11px; }
+.soldout, .ended {
+  background: var(--muted);
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 6px;
+}
+.desc { font-size: 13px; }
+footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 24px;
+}
