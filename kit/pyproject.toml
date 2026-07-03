@@ -1,0 +1,20 @@
+[project]
+name = "kit"
+version = "0.1.0"
+description = "軽量キット: カタログHTML+注文の神Excel+請求書(ステップ1)"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = ["openpyxl>=3.1"]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
