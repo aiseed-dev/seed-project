@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import 'design_text.dart';
 
 /// 種別バッジ(docs/10): 販売=橙 / 交換=緑 / 譲渡=青。
+/// デザインの文字: ユーザーのサイズ/スタイル設定の影響を受けない。
 class TypeBadge extends StatelessWidget {
   const TypeBadge({super.key, required this.listingType});
 
@@ -23,14 +25,7 @@ class TypeBadge extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(3),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: SeedColors.surface,
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: DesignText(label, size: 11, color: SeedColors.surface, bold: true),
     );
   }
 }
@@ -50,10 +45,7 @@ class SeedChip extends StatelessWidget {
         border: Border.all(color: SeedColors.green),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(color: SeedColors.green, fontSize: 11),
-      ),
+      child: DesignText(label, size: 11, color: SeedColors.green),
     );
   }
 }

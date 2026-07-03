@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../models.dart';
+import 'design_text.dart';
 import 'type_badge.dart';
 
 /// 出品カード(docs/10「出品カードの解剖」の簡略適用。全アプリ共通)。
@@ -47,22 +48,28 @@ class ListingCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 4,
-                      runSpacing: 2,
-                      children: [
-                        if (listing.isSelfSaved)
-                          const SeedChip(label: '自家採種'),
-                        if (listing.region != null)
-                          SeedChip(label: listing.region!),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    // 高さが足りないカードではスペック行を切り詰める
+                    // 高さが足りないカード(文字サイズ設定拡大時など)では
+                    // チップとスペック行を静かに切り詰める(条件行は常に残す)
                     Expanded(
                       child: SingleChildScrollView(
                         physics: const NeverScrollableScrollPhysics(),
-                        child: _specs(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Wrap(
+                              spacing: 4,
+                              runSpacing: 2,
+                              children: [
+                                if (listing.isSelfSaved)
+                                  const SeedChip(label: '自家採種'),
+                                if (listing.region != null)
+                                  SeedChip(label: listing.region!),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            _specs(),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -99,9 +106,8 @@ class ListingCard extends StatelessWidget {
   }
 
   /// 業者品は発芽率、個人品は同じ位置に無保証注記(docs/10 の対照)。
+  /// スペック行は「デザインの文字」: サイズ設定に影響されない(整列が核)。
   Widget _specs() {
-    const label = TextStyle(color: SeedColors.disabled, fontSize: 11);
-    const value = TextStyle(color: SeedColors.ink, fontSize: 11);
     final rows = <(String, String)>[
       if (listing.quantityNote != null) ('内容量', listing.quantityNote!),
       if (listing.harvestYear != null) ('採種年', '${listing.harvestYear}年'),
@@ -116,49 +122,51 @@ class ListingCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(width: 44, child: Text(k, style: label)),
+              SizedBox(
+                width: 44,
+                child: DesignText(k, size: 11, color: SeedColors.disabled),
+              ),
               Expanded(
-                child: Text(v,
-                    style: value, maxLines: 1, overflow: TextOverflow.ellipsis),
+                child: DesignText(v,
+                    size: 11,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
               ),
             ],
           ),
         if (listing.noWarranty && !listing.requiresSeedLabel)
-          const Text('家庭採種・発芽保証なし', style: label),
+          const DesignText('家庭採種・発芽保証なし',
+              size: 11, color: SeedColors.disabled),
       ],
     );
   }
 
+  /// 条件行(価格等)も「デザインの文字」。
   Widget _condition() {
     switch (listing.listingType) {
       case 'sell':
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              '${listing.priceYen ?? "-"}円',
-              style: const TextStyle(
-                color: SeedColors.orange,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
-            ),
+            DesignText('${listing.priceYen ?? "-"}円',
+                size: 15, color: SeedColors.orange, bold: true),
             const SizedBox(width: 4),
-            const Text('送料別',
-                style: TextStyle(color: SeedColors.disabled, fontSize: 10)),
+            const DesignText('送料別', size: 10, color: SeedColors.disabled),
           ],
         );
       case 'exchange':
-        return Text(
+        return DesignText(
           '希望: ${listing.desiredTrade ?? "相談"}',
+          size: 12,
+          color: SeedColors.green,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: SeedColors.green, fontSize: 12),
         );
       default:
-        return const Text(
+        return const DesignText(
           '無償でお譲りします(送料別)',
-          style: TextStyle(color: SeedColors.blue, fontSize: 12),
+          size: 12,
+          color: SeedColors.blue,
         );
     }
   }
