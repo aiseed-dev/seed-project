@@ -1,0 +1,19 @@
+[project]
+name = "seed-admin"
+version = "0.1.0"
+description = "運営管理アプリ(Flet・DB直結)"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "flet>=0.85",
+    # backend は models / services の import 元(再実装禁止)。
+    # モノレポでは boot.py が ../backend を sys.path に足す。
+    # 分割リポジトリ時: pip install git+https://…/backend.git
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
