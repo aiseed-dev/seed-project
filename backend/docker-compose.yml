@@ -1,0 +1,30 @@
+# 開発用: PostgreSQL + PocketBase
+# 起動: docker compose up -d
+# スキーマ適用: python scripts/initdb.py
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: seed
+      POSTGRES_PASSWORD: seed
+      POSTGRES_DB: seed
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seed"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pocketbase:
+    image: ghcr.io/muchobien/pocketbase:latest
+    ports:
+      - "8090:8090"
+    volumes:
+      - pbdata:/pb_data
+
+volumes:
+  pgdata:
+  pbdata:

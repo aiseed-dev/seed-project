@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
@@ -114,6 +114,7 @@ class Item:
     germination: str
     stock: str
     category: str
+    extra: dict[str, str] = field(default_factory=dict)  # 標準9列以外の補助列
 
 
 @dataclass
@@ -207,7 +208,13 @@ def _row_to_item(headers: dict[str, int], values: tuple) -> Item:
         price = int(price_raw)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         raise LedgerError(f"価格が数値ではありません: {price_raw!r}") from None
+    extra = {
+        name: text(name)
+        for name in headers
+        if name not in ITEM_HEADERS and text(name)
+    }
     return Item(
+        extra=extra,
         code=text("品番"),
         name=text("品種名"),
         kind=text("種別"),

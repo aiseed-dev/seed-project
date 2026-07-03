@@ -8,6 +8,7 @@ dependencies = ["openpyxl>=3.1"]
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
+pdf = ["pdfplumber"]
 
 [tool.ruff]
 line-length = 88

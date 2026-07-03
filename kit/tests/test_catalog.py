@@ -64,3 +64,23 @@ def test_html_escapes_user_text(book: Path, tmp_path: Path) -> None:
     html = (out / "index.html").read_text(encoding="utf-8")
     assert "<b>怪しい品種</b>" not in html
     assert "&lt;b&gt;怪しい品種&lt;/b&gt;" in html
+
+
+def test_card_shows_extra_columns_and_catch(book: Path, tmp_path: Path) -> None:
+    from openpyxl import load_workbook
+
+    wb = load_workbook(book)
+    ws = wb["商品"]
+    ws.cell(row=1, column=10, value="科")
+    ws.cell(row=1, column=11, value="蒔き時")
+    ws.cell(row=2, column=10, value="ナス科")
+    ws.cell(row=2, column=11, value="蒔き時：2月〜5月")
+    wb.save(book)
+    out = tmp_path / "catalog"
+    catalog.build(book, out)
+    html = (out / "index.html").read_text(encoding="utf-8")
+    assert "<th>科</th><td>ナス科</td>" in html
+    # ラベル内蔵の値はそのラベルで表示し、値からは除く
+    assert "<th>蒔き時</th><td>2月〜5月</td>" in html
+    # キャッチコピー=説明の先頭文
+    assert '<div class="catch">濃黒紫色の中長なす</div>' in html

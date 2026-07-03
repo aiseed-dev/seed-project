@@ -26,3 +26,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+
+# 第三者の著作物(カタログPDF等)はコミットしない
+kit/data/

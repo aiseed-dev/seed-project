@@ -37,15 +37,40 @@ def _price_html(shop: Shop, item: Item) -> str:
     return f'<div class="price">{item.price:,}円 <small>({note})</small></div>'
 
 
+EXTRA_ORDER = ["科", "蒔き時", "収穫", "内容量"]
+
+
+def _split_labeled(header: str, value: str) -> tuple[str, str]:
+    """「蒔き時：4月〜5月」のようにラベル内蔵の値はそのラベルを使う。"""
+    label, sep, rest = value.partition("：")
+    if sep and 0 < len(label) <= 5 and rest:
+        return label.replace(" ", ""), rest
+    return header, value
+
+
 def _spec_table(item: Item, with_code: bool = False) -> str:
     rows = []
     if with_code:
         rows.append(f"<tr><th>品番</th><td>{_esc(item.code)}</td></tr>")
+    for header in EXTRA_ORDER:
+        if value := item.extra.get(header, ""):
+            label, value = _split_labeled(header, value)
+            rows.append(f"<tr><th>{_esc(label)}</th><td>{_esc(value)}</td></tr>")
     if item.origin:
         rows.append(f"<tr><th>生産地</th><td>{_esc(item.origin)}</td></tr>")
     if item.germination:
         rows.append(f"<tr><th>発芽率</th><td>{_esc(item.germination)}</td></tr>")
     return f'<table class="spec">{"".join(rows)}</table>' if rows else ""
+
+
+def _catch_copy(item: Item) -> str:
+    """説明の先頭文をキャッチコピーとして使う(docs/10 のカード様式)。"""
+    head, _, _ = item.desc.partition("。")
+    if not head:
+        return ""
+    if len(head) > 42:
+        head = head[:41] + "…"
+    return f'<div class="catch">{_esc(head)}</div>'
 
 
 def _stock_html(item: Item) -> str:
@@ -56,6 +81,7 @@ def _stock_html(item: Item) -> str:
 
 def _card(shop: Shop, item: Item) -> str:
     parts = [
+        _catch_copy(item),
         f'<div class="name"><a href="items/{_esc(item.code)}.html">'
         f"{_esc(item.name)}</a></div>",
         f'<div><span class="chip">{_esc(item.kind)}</span></div>' if item.kind else "",
