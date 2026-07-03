@@ -175,3 +175,187 @@ class Variety {
   final String? summary;
   final String status;
 }
+
+class Provider {
+  const Provider({
+    required this.kind,
+    required this.id,
+    required this.name,
+    this.isVerified = false,
+  });
+
+  factory Provider.fromJson(Map<String, dynamic> json) => Provider(
+        kind: json['kind'] as String,
+        id: json['id'] as String,
+        name: json['name'] as String,
+        isVerified: (json['is_verified'] as bool?) ?? false,
+      );
+
+  final String kind; // user / shop
+  final String id;
+  final String name;
+  final bool isVerified;
+}
+
+class CartLine {
+  const CartLine({
+    required this.listingId,
+    required this.title,
+    required this.listingType,
+    required this.quantity,
+    required this.status,
+    this.priceYen,
+  });
+
+  factory CartLine.fromJson(Map<String, dynamic> json) => CartLine(
+        listingId: json['listing_id'] as String,
+        title: json['title'] as String,
+        listingType: json['listing_type'] as String,
+        priceYen: json['price_yen'] as int?,
+        quantity: json['quantity'] as int,
+        status: json['status'] as String,
+      );
+
+  final String listingId;
+  final String title;
+  final String listingType;
+  final int? priceYen;
+  final int quantity;
+  final String status; // active 以外は「入手できなくなりました」
+}
+
+class CartGroup {
+  const CartGroup({
+    required this.provider,
+    required this.items,
+    this.subtotalYen,
+  });
+
+  factory CartGroup.fromJson(Map<String, dynamic> json) => CartGroup(
+        provider:
+            Provider.fromJson(json['provider'] as Map<String, dynamic>),
+        items: (json['items'] as List<dynamic>)
+            .map((i) => CartLine.fromJson(i as Map<String, dynamic>))
+            .toList(),
+        subtotalYen: json['subtotal_yen'] as int?,
+      );
+
+  final Provider provider;
+  final List<CartLine> items;
+  final int? subtotalYen; // 販売品の小計(送料別)。null=販売品なし
+}
+
+class RequestItem {
+  const RequestItem({
+    required this.listingId,
+    required this.title,
+    required this.listingType,
+    required this.quantity,
+    this.priceYen,
+  });
+
+  factory RequestItem.fromJson(Map<String, dynamic> json) => RequestItem(
+        listingId: json['listing_id'] as String,
+        title: json['title'] as String,
+        listingType: json['listing_type'] as String,
+        priceYen: json['price_yen'] as int?,
+        quantity: json['quantity'] as int,
+      );
+
+  final String listingId;
+  final String title;
+  final String listingType;
+  final int? priceYen;
+  final int quantity;
+}
+
+class TradeRequest {
+  const TradeRequest({
+    required this.id,
+    required this.requestNo,
+    required this.requesterId,
+    required this.status,
+    required this.createdAt,
+    this.providerUserId,
+    this.providerShopId,
+    this.note,
+    this.acceptedAt,
+    this.completedAt,
+    this.items = const [],
+  });
+
+  factory TradeRequest.fromJson(Map<String, dynamic> json) => TradeRequest(
+        id: json['id'] as String,
+        requestNo: json['request_no'] as String,
+        requesterId: json['requester_id'] as String,
+        providerUserId: json['provider_user_id'] as String?,
+        providerShopId: json['provider_shop_id'] as String?,
+        status: json['status'] as String,
+        note: json['note'] as String?,
+        createdAt: json['created_at'] as String,
+        acceptedAt: json['accepted_at'] as String?,
+        completedAt: json['completed_at'] as String?,
+        items: ((json['items'] as List<dynamic>?) ?? [])
+            .map((i) => RequestItem.fromJson(i as Map<String, dynamic>))
+            .toList(),
+      );
+
+  final String id;
+  final String requestNo; // 申込番号(年+連番)
+  final String requesterId;
+  final String? providerUserId;
+  final String? providerShopId;
+  final String status;
+  final String? note;
+  final String createdAt;
+  final String? acceptedAt;
+  final String? completedAt;
+  final List<RequestItem> items;
+}
+
+class TradeRequestEntry {
+  const TradeRequestEntry({
+    required this.request,
+    required this.role,
+    required this.itemCount,
+    this.lastMessage,
+  });
+
+  factory TradeRequestEntry.fromJson(Map<String, dynamic> json) =>
+      TradeRequestEntry(
+        request:
+            TradeRequest.fromJson(json['request'] as Map<String, dynamic>),
+        role: json['role'] as String,
+        itemCount: json['item_count'] as int,
+        lastMessage: json['last_message'] as String?,
+      );
+
+  final TradeRequest request;
+  final String role; // requester / provider
+  final int itemCount;
+  final String? lastMessage;
+}
+
+class Message {
+  const Message({
+    required this.id,
+    required this.senderId,
+    required this.body,
+    required this.sentAt,
+    this.readAt,
+  });
+
+  factory Message.fromJson(Map<String, dynamic> json) => Message(
+        id: json['id'] as String,
+        senderId: json['sender_id'] as String,
+        body: json['body'] as String,
+        sentAt: json['sent_at'] as String,
+        readAt: json['read_at'] as String?,
+      );
+
+  final String id;
+  final String senderId;
+  final String body;
+  final String sentAt;
+  final String? readAt;
+}

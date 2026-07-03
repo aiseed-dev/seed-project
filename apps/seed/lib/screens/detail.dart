@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-/// 出品詳細(docs/04 ListingDetailScreen)。
-/// カートは Phase 3 で追加する(在庫・カート機能はまだ出さない)。
+/// 出品詳細(docs/04 ListingDetailScreen)。数量+「カートに入れる」付き。
 class ListingDetailScreen extends StatefulWidget {
   const ListingDetailScreen({super.key, required this.listingId});
 
@@ -16,6 +16,75 @@ class ListingDetailScreen extends StatefulWidget {
 class _ListingDetailScreenState extends State<ListingDetailScreen> {
   Listing? _listing; // null=読込中
   String? _error;
+  int _quantity = 1;
+  bool _adding = false;
+
+  Future<void> _addToCart() async {
+    if (!Session.instance.isLoggedIn) {
+      context.go('/login');
+      return;
+    }
+    setState(() => _adding = true);
+    try {
+      await ApiClient.i.putCartItem(widget.listingId, _quantity);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('カートに追加しました')),
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _adding = false);
+    }
+  }
+
+  Widget _bottomBar(Listing listing) {
+    if (listing.status != 'active') {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        color: SeedColors.disabled,
+        child: Text(
+          listing.status == 'closed' ? '終了しました' : 'ただいま取引中です',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: SeedColors.surface),
+        ),
+      );
+    }
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          children: [
+            if (listing.listingType == 'sell') ...[
+              IconButton(
+                onPressed: _quantity > 1
+                    ? () => setState(() => _quantity--)
+                    : null,
+                icon: const Icon(Icons.remove_circle_outline),
+              ),
+              Text('$_quantity'),
+              IconButton(
+                onPressed: () => setState(() => _quantity++),
+                icon: const Icon(Icons.add_circle_outline),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: FilledButton(
+                onPressed: _adding ? null : _addToCart,
+                child: const Text('カートに入れる'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -43,7 +112,19 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   Widget build(BuildContext context) {
     final listing = _listing;
     return Scaffold(
-      appBar: AppBar(title: const Text('出品詳細')),
+      appBar: AppBar(
+        title: const Text('出品詳細'),
+        actions: [
+          if (listing != null)
+            PopupMenuButton<String>(
+              onSelected: (_) => _report(listing),
+              itemBuilder: (context) => const [
+                PopupMenuItem(value: 'report', child: Text('通報する')),
+              ],
+            ),
+        ],
+      ),
+      bottomNavigationBar: listing == null ? null : _bottomBar(listing),
       body: _error != null
           ? Center(
               child: TextButton(onPressed: _load, child: Text('$_error(再試行)')),
@@ -219,6 +300,50 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         ],
       ),
     );
+  }
+
+  /// 通報UI(事後審査方式の入口)。
+  Future<void> _report(Listing listing) async {
+    if (!Session.instance.isLoggedIn) {
+      context.go('/login');
+      return;
+    }
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('通報の理由'),
+        children: [
+          for (final (value, label) in [
+            ('registered_variety', '登録品種の疑い'),
+            ('spam', 'スパム・宣伝'),
+            ('fraud', '詐欺の疑い'),
+            ('other', 'その他'),
+          ])
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, value),
+              child: Text(label),
+            ),
+        ],
+      ),
+    );
+    if (reason == null || !mounted) return;
+    try {
+      await ApiClient.i.postReport(
+        targetType: 'listing',
+        targetId: listing.id,
+        reason: reason,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('通報を受け付けました')),
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    }
   }
 
   /// SellerTile(評価は Phase 3 で表示)。

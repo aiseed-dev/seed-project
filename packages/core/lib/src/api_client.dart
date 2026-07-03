@@ -81,6 +81,83 @@ class ApiClient {
         .toList();
   }
 
+  Future<List<CartGroup>> fetchCart() async {
+    final rows = await getJson('/cart') as List<dynamic>;
+    return rows
+        .map((r) => CartGroup.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> putCartItem(String listingId, int quantity) =>
+      putJson('/cart/items/$listingId', {'quantity': quantity});
+
+  Future<void> deleteCartItem(String listingId) =>
+      deleteJson('/cart/items/$listingId');
+
+  Future<TradeRequest> createRequest({
+    required String providerKind,
+    required String providerId,
+    String? note,
+  }) async {
+    final json = await postJson('/requests', {
+      'provider_kind': providerKind,
+      'provider_id': providerId,
+      if (note != null && note.isNotEmpty) 'note': note,
+    }) as Map<String, dynamic>;
+    return TradeRequest.fromJson(json);
+  }
+
+  Future<List<TradeRequestEntry>> fetchRequests() async {
+    final rows = await getJson('/requests') as List<dynamic>;
+    return rows
+        .map((r) => TradeRequestEntry.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<TradeRequest> fetchRequest(String id) async {
+    final json = await getJson('/requests/$id') as Map<String, dynamic>;
+    return TradeRequest.fromJson(json);
+  }
+
+  Future<TradeRequest> patchRequest(String id, String status) async {
+    final json =
+        await patchJson('/requests/$id', {'status': status})
+            as Map<String, dynamic>;
+    return TradeRequest.fromJson(json);
+  }
+
+  Future<List<Message>> fetchMessages(String requestId) async {
+    final rows = await getJson('/requests/$requestId/messages') as List<dynamic>;
+    return rows
+        .map((r) => Message.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Message> postMessage(String requestId, String body) async {
+    final json = await postJson('/requests/$requestId/messages', {'body': body})
+        as Map<String, dynamic>;
+    return Message.fromJson(json);
+  }
+
+  Future<void> postReview(String requestId, int score, String? comment) =>
+      postJson('/requests/$requestId/reviews', {
+        'score': score,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      });
+
+  Future<void> postReport({
+    required String targetType,
+    required String targetId,
+    required String reason,
+    String? detail,
+  }) =>
+      postJson('/reports', {
+        'target_type': targetType,
+        'target_id': targetId,
+        'reason': reason,
+        if (detail != null && detail.isNotEmpty) 'detail': detail,
+      });
+
   // --- 低レベル ---
 
   Map<String, String> _headers() {
@@ -101,6 +178,25 @@ class ApiClient {
     return _send(
       () => _client.post(uri, headers: _headers(), body: jsonEncode(body)),
     );
+  }
+
+  Future<dynamic> putJson(String path, Object? body) async {
+    final uri = Uri.parse('$baseUrl$path');
+    return _send(
+      () => _client.put(uri, headers: _headers(), body: jsonEncode(body)),
+    );
+  }
+
+  Future<dynamic> patchJson(String path, Object? body) async {
+    final uri = Uri.parse('$baseUrl$path');
+    return _send(
+      () => _client.patch(uri, headers: _headers(), body: jsonEncode(body)),
+    );
+  }
+
+  Future<dynamic> deleteJson(String path) async {
+    final uri = Uri.parse('$baseUrl$path');
+    return _send(() => _client.delete(uri, headers: _headers()));
   }
 
   Future<dynamic> _send(Future<http.Response> Function() request) async {

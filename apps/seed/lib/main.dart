@@ -13,6 +13,8 @@ import 'screens/login.dart';
 import 'screens/mypage.dart';
 import 'screens/post.dart';
 import 'screens/register.dart';
+import 'screens/request.dart';
+import 'screens/requests.dart';
 import 'screens/search.dart';
 
 void main() {
@@ -41,6 +43,17 @@ final _router = GoRouter(
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/requests',
+      builder: (context, state) => const RequestListScreen(),
+      routes: [
+        GoRoute(
+          path: ':id',
+          builder: (context, state) =>
+              RequestScreen(requestId: state.pathParameters['id']!),
+        ),
+      ],
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => NavShell(shell: shell),
