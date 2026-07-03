@@ -1,0 +1,14 @@
+# /etc/systemd/system/pocketbase.service
+[Unit]
+Description=PocketBase (identity only)
+After=network.target
+
+[Service]
+WorkingDirectory=/srv/pocketbase
+ExecStart=/srv/pocketbase/pocketbase serve --http=127.0.0.1:8090
+Restart=always
+RestartSec=3
+User=seed
+
+[Install]
+WantedBy=multi-user.target

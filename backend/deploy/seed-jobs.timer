@@ -1,0 +1,10 @@
+# /etc/systemd/system/seed-jobs.timer(毎分)
+[Unit]
+Description=run seed jobs every minute
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+Persistent=false
+
+[Install]
+WantedBy=timers.target

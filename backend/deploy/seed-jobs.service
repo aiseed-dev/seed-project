@@ -1,0 +1,10 @@
+# /etc/systemd/system/seed-jobs.service(timer から起動)
+[Unit]
+Description=seed periodic jobs (expire requests / unread mail)
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/app/backend
+EnvironmentFile=/etc/seed/api.env
+ExecStart=/srv/app/venv/bin/python scripts/jobs.py
+User=seed
