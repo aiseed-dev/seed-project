@@ -16,6 +16,15 @@ CREATE SCHEMA IF NOT EXISTS shared;
 CREATE SCHEMA IF NOT EXISTS exchange;
 CREATE SCHEMA IF NOT EXISTS dictionary;
 
+-- updated_at 自動更新トリガの関数(各テーブルのトリガより先に定義する)
+CREATE OR REPLACE FUNCTION shared.touch_updated_at()
+RETURNS trigger AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- ---------------------------------------------------------------------
 -- shared: ユーザー(PocketBaseの身元に対応する業務プロフィール)
 -- ---------------------------------------------------------------------
@@ -433,16 +442,8 @@ CREATE TABLE dictionary.article_photos (
 );
 
 -- =====================================================================
--- 共通: updated_at 自動更新トリガ
+-- 共通: updated_at 自動更新トリガ(関数はファイル冒頭で定義済み)
 -- =====================================================================
-CREATE OR REPLACE FUNCTION shared.touch_updated_at()
-RETURNS trigger AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE TRIGGER trg_users_touch BEFORE UPDATE ON shared.app_users
     FOR EACH ROW EXECUTE FUNCTION shared.touch_updated_at();
 CREATE TRIGGER trg_crops_touch BEFORE UPDATE ON shared.crops
