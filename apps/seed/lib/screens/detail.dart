@@ -223,10 +223,12 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       leading: const Icon(Icons.menu_book, color: SeedColors.green),
       title: Text(name),
       subtitle: Text(
-        // 辞典画面は Phase 4 で実装(それまでは案内のみ)
-        listing.varietyId != null ? '辞典(準備中)' : '辞典準備中(品種マスタ承認待ち)',
+        listing.varietyId != null ? '辞典で栽培方法を見る' : '辞典準備中(品種マスタ承認待ち)',
         style: const TextStyle(fontSize: 12),
       ),
+      onTap: listing.varietyId != null
+          ? () => context.go('/v/${listing.varietyId}')
+          : null,
     );
   }
 

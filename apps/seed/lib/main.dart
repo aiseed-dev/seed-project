@@ -12,10 +12,14 @@ import 'screens/listings.dart';
 import 'screens/login.dart';
 import 'screens/mypage.dart';
 import 'screens/post.dart';
+import 'screens/articleedit.dart';
 import 'screens/register.dart';
 import 'screens/request.dart';
 import 'screens/requests.dart';
+import 'screens/revqueue.dart';
+import 'screens/revreview.dart';
 import 'screens/search.dart';
+import 'screens/variety.dart';
 
 void main() {
   ApiClient.init(apiBase);
@@ -52,6 +56,29 @@ final _router = GoRouter(
           path: ':id',
           builder: (context, state) =>
               RequestScreen(requestId: state.pathParameters['id']!),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/v/:id',
+      builder: (context, state) =>
+          VarietyArticleScreen(varietyId: state.pathParameters['id']!),
+      routes: [
+        GoRoute(
+          path: 'edit',
+          builder: (context, state) =>
+              ArticleEditScreen(varietyId: state.pathParameters['id']!),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/editor/revisions',
+      builder: (context, state) => const RevisionQueueScreen(),
+      routes: [
+        GoRoute(
+          path: ':id',
+          builder: (context, state) =>
+              RevisionReviewScreen(revisionId: state.pathParameters['id']!),
         ),
       ],
     ),

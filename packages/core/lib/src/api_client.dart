@@ -145,6 +145,52 @@ class ApiClient {
         if (comment != null && comment.isNotEmpty) 'comment': comment,
       });
 
+  Future<Article> fetchArticle(String varietyId) async {
+    final json = await getJson('/articles/$varietyId') as Map<String, dynamic>;
+    return Article.fromJson(json);
+  }
+
+  Future<void> postRevision(
+    String varietyId,
+    Map<String, String> content,
+    String? editSummary,
+  ) =>
+      postJson('/articles/$varietyId/revisions', {
+        'content': content,
+        if (editSummary != null && editSummary.isNotEmpty)
+          'edit_summary': editSummary,
+      });
+
+  Future<List<RevisionSummary>> fetchMyRevisions() async {
+    final rows = await getJson('/me/revisions') as List<dynamic>;
+    return rows
+        .map((r) => RevisionSummary.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<RevisionQueueEntry>> fetchEditorQueue() async {
+    final rows = await getJson('/editor/revisions') as List<dynamic>;
+    return rows
+        .map((r) => RevisionQueueEntry.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<RevisionDetail> fetchEditorRevision(String id) async {
+    final json = await getJson('/editor/revisions/$id') as Map<String, dynamic>;
+    return RevisionDetail.fromJson(json);
+  }
+
+  Future<void> reviewRevision(String id, String action, String? note) =>
+      patchJson('/editor/revisions/$id', {
+        'action': action,
+        if (note != null && note.isNotEmpty) 'review_note': note,
+      });
+
+  Future<Me> fetchMe() async {
+    final json = await getJson('/me') as Map<String, dynamic>;
+    return Me.fromJson(json);
+  }
+
   Future<void> postReport({
     required String targetType,
     required String targetId,

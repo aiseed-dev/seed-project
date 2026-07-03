@@ -13,10 +13,23 @@ class MyPageScreen extends StatefulWidget {
 }
 
 class _MyPageScreenState extends State<MyPageScreen> {
+  Me? _me;
+
   @override
   void initState() {
     super.initState();
     Session.instance.addListener(_onSession);
+    _loadMe();
+  }
+
+  Future<void> _loadMe() async {
+    if (!Session.instance.isLoggedIn) return;
+    try {
+      final me = await ApiClient.i.fetchMe();
+      if (mounted) setState(() => _me = me);
+    } on ApiException {
+      // プロフィール取得失敗は致命的でないので黙って続行
+    }
   }
 
   @override
@@ -26,7 +39,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   void _onSession() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {
+        if (!Session.instance.isLoggedIn) _me = null;
+      });
+      _loadMe();
+    }
   }
 
   @override
@@ -56,6 +74,19 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   leading: Icon(Icons.star_border, color: SeedColors.disabled),
                   title: Text('評価(準備中)'),
                 ),
+                ListTile(
+                  leading:
+                      const Icon(Icons.menu_book, color: SeedColors.green),
+                  title: const Text('辞典への貢献'),
+                  onTap: () => _showContributions(context),
+                ),
+                if (_me?.isEditor ?? false)
+                  ListTile(
+                    leading: const Icon(Icons.fact_check_outlined,
+                        color: SeedColors.green),
+                    title: const Text('編集提案の承認(editor)'),
+                    onTap: () => context.go('/editor/revisions'),
+                  ),
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.logout, color: SeedColors.disabled),
@@ -67,6 +98,40 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     );
                   },
                 ),
+              ],
+            ),
+    );
+  }
+
+  Future<void> _showContributions(BuildContext context) async {
+    const labels = {'pending': '承認待ち', 'approved': '公開中', 'rejected': '見送り'};
+    List<RevisionSummary> revisions;
+    try {
+      revisions = await ApiClient.i.fetchMyRevisions();
+    } on ApiException {
+      revisions = [];
+    }
+    if (!context.mounted) return;
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => revisions.isEmpty
+          ? const SizedBox(
+              height: 160,
+              child: Center(child: Text('まだ貢献はありません')),
+            )
+          : ListView(
+              children: [
+                for (final revision in revisions)
+                  ListTile(
+                    title: Text(revision.editSummary ?? '(概要なし)'),
+                    subtitle: revision.reviewNote != null
+                        ? Text('理由: ${revision.reviewNote}')
+                        : null,
+                    trailing: Text(
+                      labels[revision.status] ?? revision.status,
+                      style: const TextStyle(color: SeedColors.green),
+                    ),
+                  ),
               ],
             ),
     );

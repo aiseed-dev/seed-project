@@ -359,3 +359,138 @@ class Message {
   final String sentAt;
   final String? readAt;
 }
+
+class Article {
+  const Article({
+    required this.varietyId,
+    required this.varietyName,
+    required this.content,
+    this.updatedAt,
+  });
+
+  factory Article.fromJson(Map<String, dynamic> json) => Article(
+        varietyId: json['variety_id'] as String,
+        varietyName: json['variety_name'] as String,
+        content: ((json['content'] as Map<String, dynamic>?) ?? {})
+            .map((k, v) => MapEntry(k, v as String)),
+        updatedAt: json['updated_at'] as String?,
+      );
+
+  final String varietyId;
+  final String varietyName;
+
+  /// セクション構造: history / cultivation / seed_saving / cooking / sources
+  final Map<String, String> content;
+  final String? updatedAt;
+}
+
+class RevisionSummary {
+  const RevisionSummary({
+    required this.id,
+    required this.status,
+    required this.createdAt,
+    this.editSummary,
+    this.reviewNote,
+  });
+
+  factory RevisionSummary.fromJson(Map<String, dynamic> json) =>
+      RevisionSummary(
+        id: json['id'] as String,
+        status: json['status'] as String,
+        createdAt: json['created_at'] as String,
+        editSummary: json['edit_summary'] as String?,
+        reviewNote: json['review_note'] as String?,
+      );
+
+  final String id;
+  final String status; // pending / approved / rejected
+  final String createdAt;
+  final String? editSummary;
+  final String? reviewNote;
+}
+
+class RevisionQueueEntry {
+  const RevisionQueueEntry({
+    required this.revision,
+    required this.varietyName,
+    required this.authorName,
+  });
+
+  factory RevisionQueueEntry.fromJson(Map<String, dynamic> json) =>
+      RevisionQueueEntry(
+        revision: RevisionSummary.fromJson(
+            json['revision'] as Map<String, dynamic>),
+        varietyName: json['variety_name'] as String,
+        authorName: json['author_name'] as String,
+      );
+
+  final RevisionSummary revision;
+  final String varietyName;
+  final String authorName;
+}
+
+class DiffLine {
+  const DiffLine({required this.text, required this.op});
+
+  factory DiffLine.fromJson(Map<String, dynamic> json) =>
+      DiffLine(text: json['text'] as String, op: json['op'] as String);
+
+  final String text;
+  final String op; // keep / add / del
+}
+
+class RevisionDetail {
+  const RevisionDetail({
+    required this.revision,
+    required this.varietyName,
+    required this.content,
+    required this.diff,
+  });
+
+  factory RevisionDetail.fromJson(Map<String, dynamic> json) => RevisionDetail(
+        revision: RevisionSummary.fromJson(
+            json['revision'] as Map<String, dynamic>),
+        varietyName: json['variety_name'] as String,
+        content: ((json['content'] as Map<String, dynamic>?) ?? {})
+            .map((k, v) => MapEntry(k, v as String)),
+        diff: ((json['diff'] as Map<String, dynamic>?) ?? {}).map(
+          (k, v) => MapEntry(
+            k,
+            (v as List<dynamic>)
+                .map((l) => DiffLine.fromJson(l as Map<String, dynamic>))
+                .toList(),
+          ),
+        ),
+      );
+
+  final RevisionSummary revision;
+  final String varietyName;
+  final Map<String, String> content;
+  final Map<String, List<DiffLine>> diff;
+}
+
+class Me {
+  const Me({
+    required this.id,
+    required this.displayName,
+    required this.role,
+    this.region,
+    this.bio,
+  });
+
+  factory Me.fromJson(Map<String, dynamic> json) => Me(
+        id: json['id'] as String,
+        displayName: json['display_name'] as String,
+        region: json['region'] as String?,
+        bio: json['bio'] as String?,
+        role: json['role'] as String,
+      );
+
+  final String id;
+  final String displayName;
+  final String? region;
+  final String? bio;
+  final String role; // user / editor / moderator / admin
+
+  bool get isEditor => role != 'user';
+}
