@@ -10,7 +10,17 @@ from fastapi import FastAPI
 
 from app.core.auth import AuthMiddleware
 from app.core.errors import install_handlers
-from app.routers import cart, categories, listings, reports, requests, varieties
+from app.routers import (
+    articles,
+    cart,
+    categories,
+    editor,
+    listings,
+    me,
+    reports,
+    requests,
+    varieties,
+)
 
 app = FastAPI(title="seed backend", version="0.1.0")
 app.add_middleware(AuthMiddleware)
@@ -22,6 +32,9 @@ app.include_router(varieties.router, prefix="/api/v1")
 app.include_router(cart.router, prefix="/api/v1")
 app.include_router(requests.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")
+app.include_router(articles.router, prefix="/api/v1")
+app.include_router(editor.router, prefix="/api/v1")
+app.include_router(me.router, prefix="/api/v1")
 
 
 @app.get("/health")
