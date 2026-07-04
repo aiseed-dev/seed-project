@@ -29,3 +29,6 @@ __pycache__/
 
 # 第三者の著作物(カタログPDF等)はコミットしない
 kit/data/
+
+# vegitage-data の静的サイトはビルド生成物(正本は web/<地域>/ の Markdown)
+vegitage-data/web/site/

@@ -44,6 +44,10 @@ cd admin && flet run --web --port 8550
 
 # 軽量キット(ステップ1)
 cd kit && python ledger.py 台帳.xlsx --sample
+
+# イタリア野菜図鑑(静的サイト。web/site/ に生成、gitignore 済み)
+pip install markdown pyyaml
+cd vegitage-data/web && python3 build.py
 ```
 
 ## コントリビュート
