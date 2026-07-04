@@ -15,6 +15,7 @@
 | `apps/shop/` | 販売用アプリ(Flutter: 店舗の出品管理・申込み対応) | AGPL-3.0-only(+ストア配布許可) |
 | `admin/` | 運営管理(Flet・DB直結。公開APIに管理系は無い) | MIT |
 | `docs/` | 仕様書(reps/)・規約草案 | — |
+| `vegitage-data/` | 伝統野菜・伝統料理の調査原稿(辞典の種データ。取込: `backend/scripts/vegimport.py`) | CC BY 4.0 |
 
 辞典コンテンツ(ユーザー投稿)は CC BY-SA 4.0。詳細は
 `backend/LICENSING.md`。
