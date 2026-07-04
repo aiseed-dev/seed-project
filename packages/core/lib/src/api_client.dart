@@ -81,6 +81,212 @@ class ApiClient {
         .toList();
   }
 
+  Future<List<CartGroup>> fetchCart() async {
+    final rows = await getJson('/cart') as List<dynamic>;
+    return rows
+        .map((r) => CartGroup.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> putCartItem(String listingId, int quantity) =>
+      putJson('/cart/items/$listingId', {'quantity': quantity});
+
+  Future<void> deleteCartItem(String listingId) =>
+      deleteJson('/cart/items/$listingId');
+
+  Future<TradeRequest> createRequest({
+    required String providerKind,
+    required String providerId,
+    String? note,
+  }) async {
+    final json = await postJson('/requests', {
+      'provider_kind': providerKind,
+      'provider_id': providerId,
+      if (note != null && note.isNotEmpty) 'note': note,
+    }) as Map<String, dynamic>;
+    return TradeRequest.fromJson(json);
+  }
+
+  Future<List<TradeRequestEntry>> fetchRequests() async {
+    final rows = await getJson('/requests') as List<dynamic>;
+    return rows
+        .map((r) => TradeRequestEntry.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<TradeRequest> fetchRequest(String id) async {
+    final json = await getJson('/requests/$id') as Map<String, dynamic>;
+    return TradeRequest.fromJson(json);
+  }
+
+  Future<TradeRequest> patchRequest(String id, String status) async {
+    final json =
+        await patchJson('/requests/$id', {'status': status})
+            as Map<String, dynamic>;
+    return TradeRequest.fromJson(json);
+  }
+
+  Future<List<Message>> fetchMessages(String requestId) async {
+    final rows = await getJson('/requests/$requestId/messages') as List<dynamic>;
+    return rows
+        .map((r) => Message.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Message> postMessage(String requestId, String body) async {
+    final json = await postJson('/requests/$requestId/messages', {'body': body})
+        as Map<String, dynamic>;
+    return Message.fromJson(json);
+  }
+
+  Future<void> postReview(String requestId, int score, String? comment) =>
+      postJson('/requests/$requestId/reviews', {
+        'score': score,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      });
+
+  Future<Article> fetchArticle(String varietyId) async {
+    final json = await getJson('/articles/$varietyId') as Map<String, dynamic>;
+    return Article.fromJson(json);
+  }
+
+  Future<void> postRevision(
+    String varietyId,
+    Map<String, String> content,
+    String? editSummary,
+  ) =>
+      postJson('/articles/$varietyId/revisions', {
+        'content': content,
+        if (editSummary != null && editSummary.isNotEmpty)
+          'edit_summary': editSummary,
+      });
+
+  Future<List<RevisionSummary>> fetchMyRevisions() async {
+    final rows = await getJson('/me/revisions') as List<dynamic>;
+    return rows
+        .map((r) => RevisionSummary.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<RevisionQueueEntry>> fetchEditorQueue() async {
+    final rows = await getJson('/editor/revisions') as List<dynamic>;
+    return rows
+        .map((r) => RevisionQueueEntry.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<RevisionDetail> fetchEditorRevision(String id) async {
+    final json = await getJson('/editor/revisions/$id') as Map<String, dynamic>;
+    return RevisionDetail.fromJson(json);
+  }
+
+  Future<void> reviewRevision(String id, String action, String? note) =>
+      patchJson('/editor/revisions/$id', {
+        'action': action,
+        if (note != null && note.isNotEmpty) 'review_note': note,
+      });
+
+  Future<Me> fetchMe() async {
+    final json = await getJson('/me') as Map<String, dynamic>;
+    return Me.fromJson(json);
+  }
+
+  Future<void> postReport({
+    required String targetType,
+    required String targetId,
+    required String reason,
+    String? detail,
+  }) =>
+      postJson('/reports', {
+        'target_type': targetType,
+        'target_id': targetId,
+        'reason': reason,
+        if (detail != null && detail.isNotEmpty) 'detail': detail,
+      });
+
+  // --- 店舗スタッフ(docs/03) ---
+
+  Future<ShopInfo> fetchShop() async {
+    final json = await getJson('/shop') as Map<String, dynamic>;
+    return ShopInfo.fromJson(json);
+  }
+
+  Future<ShopInfo> patchShop(Map<String, dynamic> body) async {
+    final json = await patchJson('/shop', body) as Map<String, dynamic>;
+    return ShopInfo.fromJson(json);
+  }
+
+  Future<List<ShopMemberInfo>> fetchShopMembers() async {
+    final rows = await getJson('/shop/members') as List<dynamic>;
+    return rows
+        .map((r) => ShopMemberInfo.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<ShopMemberInfo> patchContactLabel(String label) async {
+    final json = await patchJson('/shop/me', {'contact_label': label})
+        as Map<String, dynamic>;
+    return ShopMemberInfo.fromJson(json);
+  }
+
+  Future<List<Listing>> fetchShopListings() async {
+    final rows = await getJson('/shop/listings') as List<dynamic>;
+    return rows
+        .map((r) => Listing.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<int> bulkListings(
+    List<String> ids,
+    String action, {
+    int? priceYen,
+  }) async {
+    final json = await postJson('/shop/listings/bulk', {
+      'ids': ids,
+      'action': action,
+      if (priceYen != null) 'price_yen': priceYen,
+    }) as Map<String, dynamic>;
+    return json['updated'] as int;
+  }
+
+  Future<ImportSummary> importShopCsv(
+    List<int> bytes, {
+    String filename = 'listings.csv',
+  }) async {
+    final uri = Uri.parse('$baseUrl/shop/listings/import');
+    final request = http.MultipartRequest('POST', uri)
+      ..headers.addAll(_headers()..remove('Content-Type'))
+      ..files.add(
+        http.MultipartFile.fromBytes('file', bytes, filename: filename),
+      );
+    final streamed = await _client.send(request);
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode >= 400) {
+      throw ApiException(res.statusCode, res.body);
+    }
+    return ImportSummary.fromJson(
+      jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>,
+    );
+  }
+
+  Future<List<TradeRequestEntry>> fetchShopRequests() async {
+    final rows = await getJson('/shop/requests') as List<dynamic>;
+    return rows
+        .map((r) => TradeRequestEntry.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<ShopStatsRow>> fetchShopStats() async {
+    final rows = await getJson('/shop/stats') as List<dynamic>;
+    return rows
+        .map((r) => ShopStatsRow.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// エクスポートのダウンロードURL(Webのアンカー/ブラウザで開く)。
+  String exportUrl(String kind, String format) =>
+      '$baseUrl/shop/export?kind=$kind&format=$format';
+
   // --- 低レベル ---
 
   Map<String, String> _headers() {
@@ -101,6 +307,25 @@ class ApiClient {
     return _send(
       () => _client.post(uri, headers: _headers(), body: jsonEncode(body)),
     );
+  }
+
+  Future<dynamic> putJson(String path, Object? body) async {
+    final uri = Uri.parse('$baseUrl$path');
+    return _send(
+      () => _client.put(uri, headers: _headers(), body: jsonEncode(body)),
+    );
+  }
+
+  Future<dynamic> patchJson(String path, Object? body) async {
+    final uri = Uri.parse('$baseUrl$path');
+    return _send(
+      () => _client.patch(uri, headers: _headers(), body: jsonEncode(body)),
+    );
+  }
+
+  Future<dynamic> deleteJson(String path) async {
+    final uri = Uri.parse('$baseUrl$path');
+    return _send(() => _client.delete(uri, headers: _headers()));
   }
 
   Future<dynamic> _send(Future<http.Response> Function() request) async {

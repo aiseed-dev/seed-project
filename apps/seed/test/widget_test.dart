@@ -55,6 +55,28 @@ http.Client fakeApi() {
       body = {'items': [_listing], 'next_cursor': null};
     } else if (path.contains('/listings/')) {
       body = _listing;
+    } else if (path.endsWith('/cart')) {
+      body = [
+        {
+          'provider': {
+            'kind': 'user',
+            'id': 'prov1',
+            'name': '種子 太郎',
+            'is_verified': false,
+          },
+          'items': [
+            {
+              'listing_id': _listing['id'],
+              'title': 'みやま小かぶの種',
+              'listing_type': 'sell',
+              'price_yen': 360,
+              'quantity': 2,
+              'status': 'active',
+            },
+          ],
+          'subtotal_yen': 720,
+        },
+      ];
     } else {
       body = <Object>[];
     }
@@ -69,6 +91,7 @@ http.Client fakeApi() {
 void main() {
   setUp(() {
     ApiClient.init('http://test/api/v1', client: fakeApi());
+    Session.instance.setForTest(token: 'tok', userId: 'buyer');
   });
 
   testWidgets('ホームに分類グリッドと新着が表示される', (WidgetTester tester) async {
@@ -100,5 +123,18 @@ void main() {
     );
     expect(find.text('品種登録されていない一般品種(固定種・在来種)です'),
         findsOneWidget);
+  });
+
+  testWidgets('カートは提供者ごとにグループ表示され小計が出る', (WidgetTester tester) async {
+    await tester.pumpWidget(const SeedApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.shopping_cart_outlined));
+    await tester.pumpAndSettle();
+
+    expect(find.text('種子 太郎'), findsOneWidget);
+    expect(find.text('みやま小かぶの種'), findsOneWidget);
+    expect(find.text('小計 ¥720(送料別)'), findsOneWidget);
+    expect(find.text('申込みを送る'), findsOneWidget);
   });
 }

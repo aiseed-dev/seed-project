@@ -175,3 +175,454 @@ class Variety {
   final String? summary;
   final String status;
 }
+
+class Provider {
+  const Provider({
+    required this.kind,
+    required this.id,
+    required this.name,
+    this.isVerified = false,
+  });
+
+  factory Provider.fromJson(Map<String, dynamic> json) => Provider(
+        kind: json['kind'] as String,
+        id: json['id'] as String,
+        name: json['name'] as String,
+        isVerified: (json['is_verified'] as bool?) ?? false,
+      );
+
+  final String kind; // user / shop
+  final String id;
+  final String name;
+  final bool isVerified;
+}
+
+class CartLine {
+  const CartLine({
+    required this.listingId,
+    required this.title,
+    required this.listingType,
+    required this.quantity,
+    required this.status,
+    this.priceYen,
+  });
+
+  factory CartLine.fromJson(Map<String, dynamic> json) => CartLine(
+        listingId: json['listing_id'] as String,
+        title: json['title'] as String,
+        listingType: json['listing_type'] as String,
+        priceYen: json['price_yen'] as int?,
+        quantity: json['quantity'] as int,
+        status: json['status'] as String,
+      );
+
+  final String listingId;
+  final String title;
+  final String listingType;
+  final int? priceYen;
+  final int quantity;
+  final String status; // active 以外は「入手できなくなりました」
+}
+
+class CartGroup {
+  const CartGroup({
+    required this.provider,
+    required this.items,
+    this.subtotalYen,
+  });
+
+  factory CartGroup.fromJson(Map<String, dynamic> json) => CartGroup(
+        provider:
+            Provider.fromJson(json['provider'] as Map<String, dynamic>),
+        items: (json['items'] as List<dynamic>)
+            .map((i) => CartLine.fromJson(i as Map<String, dynamic>))
+            .toList(),
+        subtotalYen: json['subtotal_yen'] as int?,
+      );
+
+  final Provider provider;
+  final List<CartLine> items;
+  final int? subtotalYen; // 販売品の小計(送料別)。null=販売品なし
+}
+
+class RequestItem {
+  const RequestItem({
+    required this.listingId,
+    required this.title,
+    required this.listingType,
+    required this.quantity,
+    this.priceYen,
+  });
+
+  factory RequestItem.fromJson(Map<String, dynamic> json) => RequestItem(
+        listingId: json['listing_id'] as String,
+        title: json['title'] as String,
+        listingType: json['listing_type'] as String,
+        priceYen: json['price_yen'] as int?,
+        quantity: json['quantity'] as int,
+      );
+
+  final String listingId;
+  final String title;
+  final String listingType;
+  final int? priceYen;
+  final int quantity;
+}
+
+class TradeRequest {
+  const TradeRequest({
+    required this.id,
+    required this.requestNo,
+    required this.requesterId,
+    required this.status,
+    required this.createdAt,
+    this.providerUserId,
+    this.providerShopId,
+    this.note,
+    this.acceptedAt,
+    this.completedAt,
+    this.items = const [],
+  });
+
+  factory TradeRequest.fromJson(Map<String, dynamic> json) => TradeRequest(
+        id: json['id'] as String,
+        requestNo: json['request_no'] as String,
+        requesterId: json['requester_id'] as String,
+        providerUserId: json['provider_user_id'] as String?,
+        providerShopId: json['provider_shop_id'] as String?,
+        status: json['status'] as String,
+        note: json['note'] as String?,
+        createdAt: json['created_at'] as String,
+        acceptedAt: json['accepted_at'] as String?,
+        completedAt: json['completed_at'] as String?,
+        items: ((json['items'] as List<dynamic>?) ?? [])
+            .map((i) => RequestItem.fromJson(i as Map<String, dynamic>))
+            .toList(),
+      );
+
+  final String id;
+  final String requestNo; // 申込番号(年+連番)
+  final String requesterId;
+  final String? providerUserId;
+  final String? providerShopId;
+  final String status;
+  final String? note;
+  final String createdAt;
+  final String? acceptedAt;
+  final String? completedAt;
+  final List<RequestItem> items;
+}
+
+class TradeRequestEntry {
+  const TradeRequestEntry({
+    required this.request,
+    required this.role,
+    required this.itemCount,
+    this.lastMessage,
+  });
+
+  factory TradeRequestEntry.fromJson(Map<String, dynamic> json) =>
+      TradeRequestEntry(
+        request:
+            TradeRequest.fromJson(json['request'] as Map<String, dynamic>),
+        role: json['role'] as String,
+        itemCount: json['item_count'] as int,
+        lastMessage: json['last_message'] as String?,
+      );
+
+  final TradeRequest request;
+  final String role; // requester / provider
+  final int itemCount;
+  final String? lastMessage;
+}
+
+class Message {
+  const Message({
+    required this.id,
+    required this.senderId,
+    required this.body,
+    required this.sentAt,
+    this.readAt,
+  });
+
+  factory Message.fromJson(Map<String, dynamic> json) => Message(
+        id: json['id'] as String,
+        senderId: json['sender_id'] as String,
+        body: json['body'] as String,
+        sentAt: json['sent_at'] as String,
+        readAt: json['read_at'] as String?,
+      );
+
+  final String id;
+  final String senderId;
+  final String body;
+  final String sentAt;
+  final String? readAt;
+}
+
+class Article {
+  const Article({
+    required this.varietyId,
+    required this.varietyName,
+    required this.content,
+    this.updatedAt,
+  });
+
+  factory Article.fromJson(Map<String, dynamic> json) => Article(
+        varietyId: json['variety_id'] as String,
+        varietyName: json['variety_name'] as String,
+        content: ((json['content'] as Map<String, dynamic>?) ?? {})
+            .map((k, v) => MapEntry(k, v as String)),
+        updatedAt: json['updated_at'] as String?,
+      );
+
+  final String varietyId;
+  final String varietyName;
+
+  /// セクション構造: history / cultivation / seed_saving / cooking / sources
+  final Map<String, String> content;
+  final String? updatedAt;
+}
+
+class RevisionSummary {
+  const RevisionSummary({
+    required this.id,
+    required this.status,
+    required this.createdAt,
+    this.editSummary,
+    this.reviewNote,
+  });
+
+  factory RevisionSummary.fromJson(Map<String, dynamic> json) =>
+      RevisionSummary(
+        id: json['id'] as String,
+        status: json['status'] as String,
+        createdAt: json['created_at'] as String,
+        editSummary: json['edit_summary'] as String?,
+        reviewNote: json['review_note'] as String?,
+      );
+
+  final String id;
+  final String status; // pending / approved / rejected
+  final String createdAt;
+  final String? editSummary;
+  final String? reviewNote;
+}
+
+class RevisionQueueEntry {
+  const RevisionQueueEntry({
+    required this.revision,
+    required this.varietyName,
+    required this.authorName,
+  });
+
+  factory RevisionQueueEntry.fromJson(Map<String, dynamic> json) =>
+      RevisionQueueEntry(
+        revision: RevisionSummary.fromJson(
+            json['revision'] as Map<String, dynamic>),
+        varietyName: json['variety_name'] as String,
+        authorName: json['author_name'] as String,
+      );
+
+  final RevisionSummary revision;
+  final String varietyName;
+  final String authorName;
+}
+
+class DiffLine {
+  const DiffLine({required this.text, required this.op});
+
+  factory DiffLine.fromJson(Map<String, dynamic> json) =>
+      DiffLine(text: json['text'] as String, op: json['op'] as String);
+
+  final String text;
+  final String op; // keep / add / del
+}
+
+class RevisionDetail {
+  const RevisionDetail({
+    required this.revision,
+    required this.varietyName,
+    required this.content,
+    required this.diff,
+  });
+
+  factory RevisionDetail.fromJson(Map<String, dynamic> json) => RevisionDetail(
+        revision: RevisionSummary.fromJson(
+            json['revision'] as Map<String, dynamic>),
+        varietyName: json['variety_name'] as String,
+        content: ((json['content'] as Map<String, dynamic>?) ?? {})
+            .map((k, v) => MapEntry(k, v as String)),
+        diff: ((json['diff'] as Map<String, dynamic>?) ?? {}).map(
+          (k, v) => MapEntry(
+            k,
+            (v as List<dynamic>)
+                .map((l) => DiffLine.fromJson(l as Map<String, dynamic>))
+                .toList(),
+          ),
+        ),
+      );
+
+  final RevisionSummary revision;
+  final String varietyName;
+  final Map<String, String> content;
+  final Map<String, List<DiffLine>> diff;
+}
+
+class Me {
+  const Me({
+    required this.id,
+    required this.displayName,
+    required this.role,
+    this.region,
+    this.bio,
+  });
+
+  factory Me.fromJson(Map<String, dynamic> json) => Me(
+        id: json['id'] as String,
+        displayName: json['display_name'] as String,
+        region: json['region'] as String?,
+        bio: json['bio'] as String?,
+        role: json['role'] as String,
+      );
+
+  final String id;
+  final String displayName;
+  final String? region;
+  final String? bio;
+  final String role; // user / editor / moderator / admin
+
+  bool get isEditor => role != 'user';
+}
+
+class ShopInfo {
+  const ShopInfo({
+    required this.id,
+    required this.slug,
+    required this.code,
+    required this.name,
+    required this.isVerified,
+    required this.isActive,
+    this.description,
+    this.websiteUrl,
+    this.region,
+    this.contactPhone,
+    this.returnPolicy,
+    this.deliveryTime,
+  });
+
+  factory ShopInfo.fromJson(Map<String, dynamic> json) => ShopInfo(
+        id: json['id'] as String,
+        slug: json['slug'] as String,
+        code: json['code'] as String,
+        name: json['name'] as String,
+        description: json['description'] as String?,
+        websiteUrl: json['website_url'] as String?,
+        region: json['region'] as String?,
+        contactPhone: json['contact_phone'] as String?,
+        returnPolicy: json['return_policy'] as String?,
+        deliveryTime: json['delivery_time'] as String?,
+        isVerified: (json['is_verified'] as bool?) ?? false,
+        isActive: (json['is_active'] as bool?) ?? true,
+      );
+
+  final String id;
+  final String slug;
+  final String code;
+  final String name;
+  final String? description;
+  final String? websiteUrl;
+  final String? region;
+  final String? contactPhone;
+  final String? returnPolicy;
+  final String? deliveryTime;
+  final bool isVerified;
+  final bool isActive;
+}
+
+class ShopMemberInfo {
+  const ShopMemberInfo({
+    required this.userId,
+    required this.displayName,
+    required this.role,
+    this.contactLabel,
+  });
+
+  factory ShopMemberInfo.fromJson(Map<String, dynamic> json) => ShopMemberInfo(
+        userId: json['user_id'] as String,
+        displayName: json['display_name'] as String,
+        role: json['role'] as String,
+        contactLabel: json['contact_label'] as String?,
+      );
+
+  final String userId;
+  final String displayName;
+  final String role; // owner / staff
+  final String? contactLabel;
+}
+
+class ImportRowResult {
+  const ImportRowResult({
+    required this.row,
+    required this.status,
+    required this.name,
+    this.detail,
+  });
+
+  factory ImportRowResult.fromJson(Map<String, dynamic> json) =>
+      ImportRowResult(
+        row: json['row'] as int,
+        status: json['status'] as String,
+        name: json['name'] as String,
+        detail: json['detail'] as String?,
+      );
+
+  final int row;
+  final String status; // created / proposed / error
+  final String name;
+  final String? detail;
+}
+
+class ImportSummary {
+  const ImportSummary({
+    required this.created,
+    required this.proposed,
+    required this.errors,
+    required this.rows,
+  });
+
+  factory ImportSummary.fromJson(Map<String, dynamic> json) => ImportSummary(
+        created: json['created'] as int,
+        proposed: json['proposed'] as int,
+        errors: json['errors'] as int,
+        rows: (json['rows'] as List<dynamic>)
+            .map((r) => ImportRowResult.fromJson(r as Map<String, dynamic>))
+            .toList(),
+      );
+
+  final int created;
+  final int proposed;
+  final int errors;
+  final List<ImportRowResult> rows;
+}
+
+class ShopStatsRow {
+  const ShopStatsRow({
+    required this.listingId,
+    required this.title,
+    required this.status,
+    required this.requestCount,
+  });
+
+  factory ShopStatsRow.fromJson(Map<String, dynamic> json) => ShopStatsRow(
+        listingId: json['listing_id'] as String,
+        title: json['title'] as String,
+        status: json['status'] as String,
+        requestCount: json['request_count'] as int,
+      );
+
+  final String listingId;
+  final String title;
+  final String status;
+  final int requestCount;
+}

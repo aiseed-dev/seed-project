@@ -1,0 +1,21 @@
+# docs/09: Cloudflare(Full Strict)配下。Origin CA 証明書を配置して使う
+seed.example.jp {
+    tls /etc/caddy/origin.pem /etc/caddy/origin-key.pem
+
+    handle /api/* {
+        reverse_proxy localhost:8000
+    }
+    handle /auth/* {
+        uri strip_prefix /auth
+        reverse_proxy localhost:8090
+    }
+    handle /images/* {
+        root * /srv/seed
+        file_server
+        header Cache-Control "public, max-age=31536000, immutable"
+    }
+    handle {
+        # 利用者アプリは Cloudflare Pages 配信が基本(同居配信はしない)
+        respond 404
+    }
+}

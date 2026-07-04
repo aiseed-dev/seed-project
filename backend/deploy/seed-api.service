@@ -1,0 +1,15 @@
+# /etc/systemd/system/seed-api.service
+[Unit]
+Description=seed backend (FastAPI)
+After=network.target postgresql.service
+
+[Service]
+WorkingDirectory=/srv/app/backend
+EnvironmentFile=/etc/seed/api.env
+ExecStart=/srv/app/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+User=seed
+
+[Install]
+WantedBy=multi-user.target
