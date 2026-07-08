@@ -15,7 +15,7 @@
 | `apps/shop/` | 販売用アプリ(Flutter: 店舗の出品管理・申込み対応) | AGPL-3.0-only(+ストア配布許可) |
 | `admin/` | 運営管理(Flet・DB直結。公開APIに管理系は無い) | MIT |
 | `docs/` | 仕様書(reps/)・規約草案 | — |
-| `vegitage-data/` | 伝統野菜・伝統料理の調査原稿(辞典の種データ。取込: `backend/scripts/vegimport.py`) | CC BY 4.0 |
+| (移動済み) | 調査原稿 `vegitage-data/` は aiseed-dev/vegitage リポジトリへ移動(2026-07-08。取込: `backend/scripts/vegimport.py`) | CC BY 4.0 |
 
 辞典コンテンツ(ユーザー投稿)は CC BY-SA 4.0。詳細は
 `backend/LICENSING.md`。
@@ -47,7 +47,7 @@ cd kit && python ledger.py 台帳.xlsx --sample
 
 # イタリア野菜図鑑(静的サイト。web/site/ に生成、gitignore 済み)
 pip install markdown pyyaml
-cd vegitage-data/web && python3 build.py
+cd ../vegitage/vegitage-data/web && python3 build.py
 ```
 
 ## コントリビュート

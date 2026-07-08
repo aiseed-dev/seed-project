@@ -21,7 +21,7 @@
 
 ### 2. 原稿ファイルで協力する(GitHub が使える方)
 
-正本は `vegitage-data/web/<地域>/` の Markdown です。
+正本は [aiseed-dev/vegitage](https://github.com/aiseed-dev/vegitage) リポジトリの `vegitage-data/web/<地域>/` の Markdown です。
 
 - 概要: `<作物>.md` / 歴史: `history/<作物>.md` /
   栽培: `cultivation/<作物>.md` / 料理: `cuisine/<作物>.md`
