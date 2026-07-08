@@ -21,6 +21,7 @@ class _VarietyArticleScreenState extends State<VarietyArticleScreen> {
   static const sectionLabels = {
     'history': '歴史',
     'cultivation': '栽培方法',
+    'natural_farming': '自然農法',
     'seed_saving': '採種方法',
     'cooking': '料理',
     'sources': '出典',

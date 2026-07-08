@@ -14,7 +14,15 @@ from app.core.errors import ApiError
 from app.models import Article, Revision, Variety
 from app.services import mail
 
-SECTIONS = ["history", "cultivation", "seed_saving", "cooking", "sources"]
+# natural_farming: 自然農法・有機栽培の実践知(実践者の投稿の受け皿)
+SECTIONS = [
+    "history",
+    "cultivation",
+    "natural_farming",
+    "seed_saving",
+    "cooking",
+    "sources",
+]
 
 
 def ensure_article(db: Session, variety: Variety) -> Article:
